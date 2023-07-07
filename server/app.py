@@ -22,13 +22,41 @@ def clear_session():
 
 @app.route('/articles')
 def index_articles():
+    articles = Article.query.all()
 
-    pass
+    return make_response(
+        [article.to_dict() for article in articles],
+        200
+    )
 
 @app.route('/articles/<int:id>')
 def show_article(id):
+    # session['page_views'] = 0
+    session['page_views'] = session.get('page_views') or 0
+    session['page_views'] += 1
 
-    pass
+    if session['page_views'] <= 3:
+        return Article.query.filter(Article.id == id).first().to_dict(), 200
+        
+    return {'message': 'Maximum pageview limit reached'}, 401
 
+    # this works just wont pass tests
+    # if 'page_views' not in session or session.new:
+    #     session['page_views'] = 0
+    # else:
+    #     session['page_views'] += 1
+
+    # if session['page_views'] <= 3:
+
+    #     article = Article.query.filter_by(id = id).first().to_dict()
+    #     return make_response(
+    #         article, 200
+    #     )
+    
+    # return make_response(
+    #     jsonify({'message': 'Maximum page view limit reached'}),
+    #     401
+    # )
+    
 if __name__ == '__main__':
     app.run(port=5555)
